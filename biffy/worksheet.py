@@ -1,8 +1,8 @@
-import biff12
+from . import biff12
 import os
 import xml.etree.ElementTree as ElementTree
 from collections import namedtuple
-from reader import BIFF12Reader
+from .reader import BIFF12Reader
 
 Cell = namedtuple('Cell', ['r', 'c', 'v'])
 
@@ -44,22 +44,22 @@ class Worksheet(object):
         if self._rels is None:
           break
       elif item[0] == biff12.HYPERLINK and not self._rels is None:
-        for r in xrange(item[1].h):
-          for c in xrange(item[1].w):
+        for r in range(item[1].h):
+          for c in range(item[1].w):
             self.hyperlinks[item[1].r + r, item[1].c + c] = item[1].rId
 
   def rows(self):
     self._reader.seek(self._data_offset, os.SEEK_SET)
     row_num = 0
-    row = [Cell._make([row_num, i, None]) for i in xrange(self.dimension.w)]
+    row = [Cell._make([row_num, i, None]) for i in range(self.dimension.w)]
     for item in self._reader:
       if item[0] == biff12.ROW and item[1].r != row_num:
         while row_num + 1 < item[1].r:
-          yield [Cell._make([row_num, i, None]) for i in xrange(self.dimension.w)]
+          yield [Cell._make([row_num, i, None]) for i in range(self.dimension.w)]
           row_num += 1
         yield row
         row_num = item[1].r
-        row = [Cell._make([row_num, i, None]) for i in xrange(self.dimension.w)]
+        row = [Cell._make([row_num, i, None]) for i in range(self.dimension.w)]
       elif item[0] >= biff12.BLANK and item[0] <= biff12.FORMULA_BOOLERR:
         if item[0] == biff12.STRING and not self._stringtable is None:
           row[item[1].c] = Cell._make([row_num, item[1].c, self._stringtable[item[1].v]])

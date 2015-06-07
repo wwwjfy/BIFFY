@@ -1,1 +1,1 @@
-from biffy import *
+from .biffy import *

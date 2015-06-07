@@ -1,9 +1,9 @@
-import biff12
+from . import biff12
 import os
-from reader import BIFF12Reader
-from stringtable import StringTable
+from .reader import BIFF12Reader
+from .stringtable import StringTable
 from tempfile import TemporaryFile
-from worksheet import Worksheet
+from .worksheet import Worksheet
 
 class Workbook(object):
   def __init__(self, fp):
@@ -41,7 +41,7 @@ class Workbook(object):
       pass
 
   def get_sheet(self, idx, rels=False):
-    if isinstance(idx, basestring):
+    if isinstance(idx, str):
       idx = self.sheets.index(idx) + 1
     if idx < 1 or idx > len(self.sheets):
       raise IndexError('sheet index out of range')

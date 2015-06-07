@@ -1,9 +1,9 @@
 import array
-import biff12
+from . import biff12
 import io
 import os
 import struct
-from handlers import *
+from .handlers import *
 
 uint32_t = struct.Struct('I')
 uint16_t = struct.Struct('H')
@@ -57,7 +57,7 @@ class RecordReader(object):
     if intval & 0x02 != 0:
       v = float(intval >> 2)
     else:
-      buff = array.array('B', '\x00\x00\x00\x00')
+      buff = array.array('B', b'\x00\x00\x00\x00')
       buff.fromstring(uint32_t.pack(intval & 0xFFFFFFFC))
       v = double_t.unpack(buff.tostring())[0]
     if intval & 0x01 != 0:
@@ -71,15 +71,15 @@ class RecordReader(object):
     return double_t.unpack(buff)[0]
 
   def read_string(self):
-    s = u''
+    s = ''
     l = self.read_int()
     if l is None:
       return None
-    for i in xrange(l):
+    for i in range(l):
       c = self.read_short()
       if c is None:
         return None
-      s += unichr(c)
+      s += chr(c)
     return s
 
 
@@ -141,7 +141,7 @@ class BIFF12Reader(object):
 
   def read_id(self):
     v = 0
-    for i in xrange(4):
+    for i in range(4):
       byte = self._fp.read(1)
       if byte == '':
         return None
@@ -153,7 +153,7 @@ class BIFF12Reader(object):
 
   def read_len(self):
     v = 0
-    for i in xrange(4):
+    for i in range(4):
       byte = self._fp.read(1)
       if byte == '':
         return None
@@ -166,7 +166,7 @@ class BIFF12Reader(object):
   def register_handler(self, recid, handler):
     self.handlers[recid] = handler
 
-  def next(self):
+  def __next__(self):
     ret = None
     while ret is None:
       if self.debug:
@@ -177,7 +177,7 @@ class BIFF12Reader(object):
         raise StopIteration
       ret = (self.handlers.get(recid) or Handler()).read(RecordReader(self._fp.read(reclen)), recid, reclen)
       if self.debug:
-        print '{:08X}  {:04X}  {:<6} {}'.format(pos, recid, reclen, ret)
+        print('{:08X}  {:04X}  {:<6} {}'.format(pos, recid, reclen, ret))
     return (recid, ret)
 
   def close(self):
